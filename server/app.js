@@ -10,8 +10,10 @@ const app = express()
 // carregar "banco de dados" (data/jogadores.json e data/jogosPorJogador.json)
 // você pode colocar o conteúdo dos arquivos json no objeto "db" logo abaixo
 // dica: 1-4 linhas de código (você deve usar o módulo de filesystem (fs))
-const str = fs.readFileSync("server/data/jogadores.json")
-db.jogadores = (JSON.parse(str))
+const str1 = fs.readFileSync("server/data/jogadores.json")
+db.jogadores = (JSON.parse(str1))
+const str2 = fs.readFileSync("server/data/jogosPorJogador.json")
+db.jogos = (JSON.parse(str2))
 
 
 // configurar qual templating engine usar. Sugestão: hbs (handlebars)
@@ -35,7 +37,10 @@ app.get("/", function(request, response) {
 // jogador, usando os dados do banco de dados "data/jogadores.json" e
 // "data/jogosPorJogador.json", assim como alguns campos calculados
 // dica: o handler desta função pode chegar a ter ~15 linhas de código
-
+app.get("/jogador/:numero_identificador", function(request, response) {
+  response.render('jogador', db.jogadores);
+  response.render('jogador', db.jogos);
+}); 
 
 // EXERCÍCIO 1
 // configurar para servir os arquivos estáticos da pasta "client"
