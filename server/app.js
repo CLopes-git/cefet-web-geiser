@@ -38,8 +38,35 @@ app.get("/", function(request, response) {
 // "data/jogosPorJogador.json", assim como alguns campos calculados
 // dica: o handler desta função pode chegar a ter ~15 linhas de código
 app.get("/jogador/:numero_identificador", function(request, response) {
-  response.render('jogador', db.jogadores);
-  response.render('jogador', db.jogos);
+  const steamId = request.params.numero_identificador;
+  const jogador = db.jogadores.players.find(p => p.steamid === steamId);
+  
+  if (!jogador) {
+    response.status(404).send('Jogador não encontrado');
+    return;
+  }
+
+  const jogosDoJogador = db.jogos[steamId];
+  
+  if (!jogosDoJogador) {
+    response.status(404).send('Jogos do jogador não encontrados');
+    return;
+  }
+  
+  const jogosOrdenados = jogosDoJogador.games
+    .sort((a, b) => b.playtime_forever - a.playtime_forever)
+    .slice(0, 5);
+
+  const contexto = {
+    players: [jogador],
+    games: jogosOrdenados.map(jogo => ({
+      name: jogo.name,
+      img_logo_url: `http://media.steampowered.com/steamcommunity/public/images/apps/${jogo.appid}/${jogo.img_logo_url}.jpg`,
+      playtime_forever: Math.round(jogo.playtime_forever / 60) // converter de minutos para horas
+    }))
+  };
+  
+  response.render('jogador', contexto);
 }); 
 
 // EXERCÍCIO 1
